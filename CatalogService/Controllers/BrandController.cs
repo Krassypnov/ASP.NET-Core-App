@@ -49,5 +49,34 @@ namespace CatalogService.Controllers
 
             return StatusCode((int)HttpStatusCode.OK);
         }
+
+
+        [SwaggerResponse((int)HttpStatusCode.OK)]
+        [SwaggerResponse((int)HttpStatusCode.NotFound)]
+        [HttpDelete("deleteBrandByName/{name}")]
+        public ActionResult deleteBrandByName(string name)
+        {
+            var obj = _db.Brands.FirstOrDefault(c => c.BrandName == name);
+            if (obj == null)
+                return NotFound();
+
+            _db.Brands.Remove(obj);
+            _db.SaveChanges();
+            return Ok("Product successfully deleted");
+        }
+
+        [SwaggerResponse((int)HttpStatusCode.OK)]
+        [SwaggerResponse((int)HttpStatusCode.NotFound)]
+        [HttpDelete("deleteBrandById/{name}")]
+        public ActionResult deleteBrandById(Guid id)
+        {
+            var obj = _db.Brands.FirstOrDefault(c => c.Id == id);
+            if (obj == null)
+                return NotFound();
+
+            _db.Brands.Remove(obj);
+            _db.SaveChanges();
+            return Ok("Product successfully deleted");
+        }
     }
 }

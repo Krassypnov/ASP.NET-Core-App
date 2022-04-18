@@ -51,5 +51,32 @@ namespace CatalogService.Controllers
             return StatusCode((int)HttpStatusCode.OK);
         }
 
+        [SwaggerResponse((int)HttpStatusCode.OK)]
+        [SwaggerResponse((int)HttpStatusCode.NotFound)]
+        [HttpDelete("deleteCategoryByName/{name}")]
+        public ActionResult deleteCategoryByName(string name)
+        {
+            var obj = _db.Categories.FirstOrDefault(c => c.CategoryName == name);
+            if (obj == null)
+                return NotFound();
+
+            _db.Categories.Remove(obj);
+            _db.SaveChanges();
+            return Ok("Product successfully deleted");
+        }
+
+        [SwaggerResponse((int)HttpStatusCode.OK)]
+        [SwaggerResponse((int)HttpStatusCode.NotFound)]
+        [HttpDelete("deleteCategoryById/{name}")]
+        public ActionResult deleteCategoryById(Guid id)
+        {
+            var obj = _db.Categories.FirstOrDefault(c => c.Id == id);
+            if (obj == null)
+                return NotFound();
+
+            _db.Categories.Remove(obj);
+            _db.SaveChanges();
+            return Ok("Product successfully deleted");
+        }
     }
 }

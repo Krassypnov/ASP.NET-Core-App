@@ -82,7 +82,7 @@ namespace CatalogService.Controllers
             if (obj == null)
                 return NotFound();
 
-            _db.Remove(obj);
+            _db.Products.Remove(obj);
             _db.SaveChanges();
             return Ok("Product successfully deleted");
         }
@@ -96,7 +96,7 @@ namespace CatalogService.Controllers
             if (obj == null)
                 return NotFound();
 
-            _db.Remove(obj);
+            _db.Products.Remove(obj);
             _db.SaveChanges();
             return Ok("Product successfully deleted");
         }
