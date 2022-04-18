@@ -51,51 +51,6 @@ namespace CatalogService
 
 
 
-            //app.MapGet("/getdatetime", () =>
-            //{
-            //    var someData = "Time: ";
-
-            //    return someData + DateTime.Now.ToString();
-            //}).WithName("GetTime");
-
-            //app.MapGet("/api/users", () => users).WithName("GetUsers");
-
-            //app.MapGet("/api/users/{id}", (string id) =>
-            //{
-            //    Person? person = users.FirstOrDefault(x => x.Id == id);
-            //    if (person == null) return Results.NotFound(new { message = "User not found" });
-
-            //    return Results.Json(person);
-            //});
-
-            //app.MapPost("/api/users/{id}", (Person person) =>
-            //{
-
-            //    if (users.Contains(person))
-            //    {
-            //        return Results.NotFound(new { message = "User already exist" });
-            //    }
-
-            //    users.Add(person);
-            //    return Results.Ok(new { message = "Person was added" });
-
-            //});
-
-
-            //app.MapDelete("/api/users/{id}", (string id) =>
-            //{
-            //    // получаем пользователя по id
-            //    Person? user = users.FirstOrDefault(u => u.Id == id);
-
-            //    // если не найден, отправляем статусный код и сообщение об ошибке
-            //    if (user == null) return Results.NotFound(new { message = "Пользователь не найден" });
-
-            //    // если пользователь найден, удаляем его
-            //    users.Remove(user);
-            //    return Results.Json(user);
-            //});
-
-
             app.Run();
 
         }
