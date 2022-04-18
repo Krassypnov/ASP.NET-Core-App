@@ -1,4 +1,6 @@
 using System.Net.Http;
+using Microsoft.EntityFrameworkCore;
+
 
 namespace DeliveryService
 {
@@ -8,7 +10,10 @@ namespace DeliveryService
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-
+            builder.Services.AddControllers();
+            builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(
+                builder.Configuration.GetConnectionString("DeliveryConnection")
+                ));
 
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
@@ -23,17 +28,9 @@ namespace DeliveryService
             }
 
             app.UseHttpsRedirection();
-
+            app.UseRouting();
 
             
-            app.MapGet("/api/users", async (string Name, int Age) =>
-            {
-                var userId = Guid.NewGuid().ToString();
-                //var responsePerson = await client.GetFromJsonAsync<Person>($"https://localhost:7113/api/users/{userId}");
-                var responsePerson = await client.PostAsJsonAsync<Person>($"https://localhost:7113/api/users/{userId}", new Person { Id = userId, Age = Age, Name = Name});
-                Console.WriteLine(responsePerson);
-                return responsePerson;
-            });
 
 
             app.Run();
