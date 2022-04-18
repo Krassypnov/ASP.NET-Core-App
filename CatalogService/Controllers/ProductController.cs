@@ -30,7 +30,7 @@ namespace CatalogService.Controllers
 
         [SwaggerResponse((int)HttpStatusCode.OK)]
         [SwaggerResponse((int)HttpStatusCode.NotFound)]
-        [HttpGet("getById/{id}")]
+        [HttpGet("getProductById/{id}")]
         public ActionResult getProductById(Guid id)
         {
             var obj = _db.Products.FirstOrDefault(c => c.Id == id);
@@ -42,7 +42,7 @@ namespace CatalogService.Controllers
 
         [SwaggerResponse((int)HttpStatusCode.OK)]
         [SwaggerResponse((int)HttpStatusCode.NotFound)]
-        [HttpGet("getByName/{name}")]
+        [HttpGet("getProductByName/{name}")]
         public ActionResult getProductById(string name)
         {
             var obj = _db.Products.FirstOrDefault(c => c.ProductName == name);
@@ -53,9 +53,51 @@ namespace CatalogService.Controllers
         }
 
         [SwaggerResponse((int)HttpStatusCode.OK)]
+        [SwaggerResponse((int)HttpStatusCode.NotFound)]
+        [HttpGet("getProductsByCategory/{name}")]
+        public ActionResult getProductsByCategory(string name)
+        {
+            var obj = _db.Products.Where(c => c.Category == name);
+            if (obj == null)
+                return NotFound();
+
+            return Json(obj);
+        }
+
+        [SwaggerResponse((int)HttpStatusCode.OK)]
+        [SwaggerResponse((int)HttpStatusCode.NotFound)]
+        [HttpGet("getProductsByBrand/{name}")]
+        public ActionResult getProductsByBrand(string name)
+        {
+            var obj = _db.Products.Where(c => c.Brand == name);
+            if (obj == null)
+                return NotFound();
+
+            return Json(obj);
+        }
+
+        [SwaggerResponse((int)HttpStatusCode.OK)]
         [SwaggerResponse((int)HttpStatusCode.BadRequest)]
-        [HttpPost("addProduct/{name}, {category}, {brand}")]
-        public ActionResult addProduct(string name, string category, string brand)
+        [HttpPut("changeCount/{name},{difference}")]
+        public ActionResult changeCount(string name, int difference)
+        {
+            var product = _db.Products.FirstOrDefault(c => c.ProductName == name);
+            if (product == null)
+                return BadRequest("Product not found");
+
+            product.Count += difference;
+            if (product.Count < 0)
+                return BadRequest("The difference must be less than or equal to the count");
+
+            _db.Products.Update(product);
+            _db.SaveChanges();
+            return Ok("Count successfully updated");
+        }
+
+        [SwaggerResponse((int)HttpStatusCode.OK)]
+        [SwaggerResponse((int)HttpStatusCode.BadRequest)]
+        [HttpPost("addProduct/{name},{category},{brand},{count}")]
+        public ActionResult addProduct(string name, string category, string brand, int count = 0)
         {
             var product = _db.Products.FirstOrDefault(c => c.ProductName == name);
             if (product != null)
@@ -67,7 +109,10 @@ namespace CatalogService.Controllers
             var objBrand = _db.Brands.FirstOrDefault(c => c.BrandName == brand);
             if (objBrand == null)
                 return BadRequest("This brand does not exist");
-            _db.Products.Add(new Product { ProductName = name, Category = category, Brand = brand });
+            if (count < 0)
+                return BadRequest("Count must be greater than or equal to 0");
+
+            _db.Products.Add(new Product { ProductName = name, Category = category, Brand = brand, Count = count });
             _db.SaveChanges();
 
             return Ok("Product added successfully");
