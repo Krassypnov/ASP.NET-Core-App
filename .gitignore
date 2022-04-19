@@ -1,5 +1,5 @@
 /.vs
 /bin
 /obj
-.csproj
-.csproj.user
+*.csproj
+*.csproj.user
