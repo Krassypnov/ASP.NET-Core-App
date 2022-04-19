@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-
+using OrderService.Models;
 
 namespace OrderService
 {
@@ -10,5 +10,6 @@ namespace OrderService
 
         }
 
+        public DbSet<Order> Orders { get; set; }
     }
 }
