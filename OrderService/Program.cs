@@ -27,6 +27,12 @@ namespace OrderService
 
             app.UseHttpsRedirection();
             app.UseRouting();
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllerRoute(
+                        name: "default",
+                        pattern: "{controller=Order}/{action=getProducts}/{id?}");
+            });
 
             app.Run();
         }

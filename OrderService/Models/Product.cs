@@ -5,8 +5,12 @@ namespace OrderService.Models
     public class Product
     {
         [Key]
-        public int Guid { get; set; }
-        public string Name { get; set; }
+        public Guid Id { get; set; }
+        public string ProductName { get; set; }
+        public string Category { get; set; }
+        public string Brand { get; set; }
+        public int Count { get; set; }
+
 
     }
 }
