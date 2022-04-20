@@ -153,7 +153,7 @@ namespace OrderService.Controllers
         [SwaggerResponse((int)HttpStatusCode.NotFound)]
         [SwaggerResponse((int)HttpStatusCode.BadRequest)]
         [HttpPost("confirmOrder/{orderId},{clientName},{clientAddress},{phoneNumber},{isDelivery}")]
-        public ActionResult confirmOrder(Guid orderId, string clientName, string clientAddress, string phoneNumber, bool isDelivery)
+        public async Task<ActionResult> confirmOrder(Guid orderId, string clientName, string clientAddress, string phoneNumber, bool isDelivery)
         {
             if (clientName.Length == 0 || clientAddress.Length == 0 || phoneNumber.Length == 0)
                 return BadRequest("Invalid parameters");
@@ -179,7 +179,12 @@ namespace OrderService.Controllers
             }
             else
             {
-                // Self pickup
+                var httpResponse = await _client.GetAsync(_uri + $"/api/Reservation/productReservation/{orderId}");
+                if (httpResponse == null)
+                    return BadRequest("Unable to get response from CatalogService");
+                if (httpResponse.StatusCode == HttpStatusCode.BadRequest)
+                    return BadRequest("Invalid count");
+                return Ok(httpResponse);
             }
 
 
