@@ -92,21 +92,35 @@ namespace OrderService.Controllers
             return httpResponse;
         }
 
+
         [SwaggerResponse((int)HttpStatusCode.OK)]
         [SwaggerResponse((int)HttpStatusCode.NotFound)]
+        [HttpGet("getProductsInOrder/{orderId}")]
+        public ActionResult getProductsInOrder(Guid orderId)
+        {
+            var products = _db.Products.Where(x => x.OrderId == orderId);
+
+            if (products == null)
+                return NotFound("Prdoucts not found");
+
+            return Json(products);
+        }
+
+
+        [SwaggerResponse((int)HttpStatusCode.OK)]
         [HttpPost("makeOrder")]
         public ActionResult makeOrder()
         {
             Guid newOrderId = Guid.NewGuid();
 
-            _db.Orders.Add(new Order { Id = newOrderId, ClientName = "", ClientAddress = "", PhoneNumber = "", CreatedDate = DateTime.Now});
+            _db.Orders.Add(new Order { Id = newOrderId, ClientName = "", ClientAddress = "", PhoneNumber = "", CreatedDate = DateTime.Now, IsConfirmedOrder = false, IsDelivery = false});
             _db.SaveChanges();
             return Json(newOrderId);
         }
         
 
         [SwaggerResponse((int)HttpStatusCode.OK)]
-        [SwaggerResponse((int)HttpStatusCode.NotFound)]
+        [SwaggerResponse((int)HttpStatusCode.BadRequest)]
         [HttpPost("addProductToOrder/{orderId}, {productId}, {count}")]
         public ActionResult addProductToOrder(Guid orderId, Guid productId, int count)
         {
@@ -119,11 +133,11 @@ namespace OrderService.Controllers
             if (count < 1)
                 return BadRequest("Incorrect count value");
 
-            var newProduct = _db.Products.FirstOrDefault(c => c.Id == productId);
+            var newProduct = _db.Products.FirstOrDefault(c => c.ProductId == productId && c.OrderId == orderId);
 
             if (newProduct == null)
             {
-                _db.Products.Add(new Product { Id = productId, OrderId = orderId, Count = count });
+                _db.Products.Add(new Product { ProductId = productId, OrderId = orderId, Count = count });
             }
             else
             {
@@ -135,6 +149,42 @@ namespace OrderService.Controllers
             return Ok("Product successfully added");
         }
 
+        [SwaggerResponse((int)HttpStatusCode.OK)]
+        [SwaggerResponse((int)HttpStatusCode.NotFound)]
+        [SwaggerResponse((int)HttpStatusCode.BadRequest)]
+        [HttpPost("confirmOrder/{orderId},{clientName},{clientAddress},{phoneNumber},{isDelivery}")]
+        public ActionResult confirmOrder(Guid orderId, string clientName, string clientAddress, string phoneNumber, bool isDelivery)
+        {
+            if (clientName.Length == 0 || clientAddress.Length == 0 || phoneNumber.Length == 0)
+                return BadRequest("Invalid parameters");
+            
+
+            var order = _db.Orders.FirstOrDefault(c => c.Id == orderId);
+
+            if (order == null)
+                return NotFound("Order not found");
+
+            order.ClientName = clientName; 
+            order.ClientAddress = clientAddress;
+            order.PhoneNumber = phoneNumber;
+            order.IsDelivery = isDelivery;
+            order.IsConfirmedOrder = true;
+
+            _db.Orders.Update(order);
+            _db.SaveChanges();
+
+            if (order.IsDelivery)
+            {
+                // Make delivery
+            }
+            else
+            {
+                // Self pickup
+            }
+
+
+            return Ok("Order successfully confirmed");
+        }
 
     }
 }

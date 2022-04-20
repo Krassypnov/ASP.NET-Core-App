@@ -11,6 +11,8 @@ namespace OrderService.Models
         public string ClientAddress { get; set; }
         public string PhoneNumber { get; set; }
         public DateTime CreatedDate { get; set; }
+        public bool IsConfirmedOrder { get; set; }
+        public bool IsDelivery { get; set; }
 
         
     }
