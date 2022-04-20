@@ -6,9 +6,7 @@ namespace OrderService.Models
     {
         [Key]
         public Guid Id { get; set; }
-        public string ProductName { get; set; }
-        public string Category { get; set; }
-        public string Brand { get; set; }
+        public Guid OrderId { get; set; }
         public int Count { get; set; }
 
 
