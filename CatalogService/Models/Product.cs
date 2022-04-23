@@ -11,5 +11,6 @@ namespace CatalogService.Models
         public string Category { get; set; }
         public string Brand { get; set; }
         public int Count { get; set; }
+        public decimal Price { get; set; }
     }
 }

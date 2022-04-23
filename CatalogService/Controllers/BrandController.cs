@@ -17,14 +17,14 @@ namespace CatalogService.Controllers
         }
 
         [HttpGet]
-        public ActionResult getBrands()
+        public ActionResult GetBrands()
         {
             IEnumerable<Brand> obj = _db.Brands;
             return Json(obj);
         }
 
         [HttpGet("{id}")]
-        public ActionResult getBrand(Guid id)
+        public ActionResult GetBrand(Guid id)
         {
             var obj = _db.Brands.FirstOrDefault(c => c.Id == id);
             if (obj == null)
@@ -36,7 +36,7 @@ namespace CatalogService.Controllers
         [SwaggerResponse((int)HttpStatusCode.OK)]
         [SwaggerResponse((int)HttpStatusCode.BadRequest)]
         [HttpPost("{name}")]
-        public ActionResult addBrand(string name)
+        public ActionResult AddBrand(string name)
         {
             var obj = _db.Brands.FirstOrDefault(c => c.BrandName == name);
             if (obj != null)
@@ -53,8 +53,8 @@ namespace CatalogService.Controllers
 
         [SwaggerResponse((int)HttpStatusCode.OK)]
         [SwaggerResponse((int)HttpStatusCode.NotFound)]
-        [HttpDelete("deleteBrandByName/{name}")]
-        public ActionResult deleteBrandByName(string name)
+        [HttpDelete("DeleteBrandByName/{name}")]
+        public ActionResult DeleteBrandByName(string name)
         {
             var obj = _db.Brands.FirstOrDefault(c => c.BrandName == name);
             if (obj == null)
@@ -62,13 +62,13 @@ namespace CatalogService.Controllers
 
             _db.Brands.Remove(obj);
             _db.SaveChanges();
-            return Ok("Product successfully deleted");
+            return Ok("Brand successfully deleted");
         }
 
         [SwaggerResponse((int)HttpStatusCode.OK)]
         [SwaggerResponse((int)HttpStatusCode.NotFound)]
-        [HttpDelete("deleteBrandById/{name}")]
-        public ActionResult deleteBrandById(Guid id)
+        [HttpDelete("DeleteBrandById/{id}")]
+        public ActionResult DeleteBrandById(Guid id)
         {
             var obj = _db.Brands.FirstOrDefault(c => c.Id == id);
             if (obj == null)
@@ -76,7 +76,7 @@ namespace CatalogService.Controllers
 
             _db.Brands.Remove(obj);
             _db.SaveChanges();
-            return Ok("Product successfully deleted");
+            return Ok("Brand successfully deleted");
         }
     }
 }

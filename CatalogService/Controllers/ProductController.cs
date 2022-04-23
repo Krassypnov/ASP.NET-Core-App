@@ -96,8 +96,8 @@ namespace CatalogService.Controllers
 
         [SwaggerResponse((int)HttpStatusCode.OK)]
         [SwaggerResponse((int)HttpStatusCode.BadRequest)]
-        [HttpPost("addProduct/{name},{category},{brand},{count}")]
-        public ActionResult addProduct(string name, string category, string brand, int count = 0)
+        [HttpPost("addProduct/{name},{category},{brand},{count},{price}")]
+        public ActionResult addProduct(string name, string category, string brand, int count = 0, decimal price = 0.0m)
         {
             var product = _db.Products.FirstOrDefault(c => c.ProductName == name);
             if (product != null)
@@ -111,8 +111,10 @@ namespace CatalogService.Controllers
                 return BadRequest("This brand does not exist");
             if (count < 0)
                 return BadRequest("Count must be greater than or equal to 0");
+            if (price < 0)
+                return BadRequest("Price must be greater than 0");
 
-            _db.Products.Add(new Product { ProductName = name, Category = category, Brand = brand, Count = count });
+            _db.Products.Add(new Product { ProductName = name, Category = category, Brand = brand, Count = count, Price = price });
             _db.SaveChanges();
 
             return Ok("Product added successfully");
