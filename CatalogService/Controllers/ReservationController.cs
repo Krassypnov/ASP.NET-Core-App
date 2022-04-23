@@ -106,11 +106,17 @@ namespace CatalogService.Controllers
         [SwaggerResponse((int)HttpStatusCode.NotFound)]
         [SwaggerResponse((int)HttpStatusCode.BadRequest)]
         [HttpDelete("CompleteOrder/{orderId}")]
-        public ActionResult CompleteOrder(Guid orderId)
+        public async Task<ActionResult> CompleteOrder(Guid orderId)
         {
             var products = _db.ReservedProducts.Where(_ => _.OrderId == orderId);
             if (products == null)
                 return NotFound($"Order with id:{orderId} not found");
+
+            var httpResponse = await _client.DeleteAsync(_uri + $"/api/Order/DeleteOrder/{orderId}");
+            if (httpResponse == null)
+                return BadRequest("Unable get response from OrderService");
+            if (httpResponse.StatusCode == HttpStatusCode.NotFound)
+                return NotFound("Order not found");
 
             _db.ReservedProducts.RemoveRange(products);
             _db.SaveChanges();

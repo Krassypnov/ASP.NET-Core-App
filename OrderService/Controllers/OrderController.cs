@@ -235,5 +235,39 @@ namespace OrderService.Controllers
             return Ok("Product was deleted");
         }
 
+
+        [SwaggerResponse((int)HttpStatusCode.OK)]
+        [SwaggerResponse((int)HttpStatusCode.NotFound)]
+        [SwaggerResponse((int)HttpStatusCode.BadRequest)]
+        [HttpDelete("CancelOrder/{orderId}")]
+        public async Task<ActionResult> CancelOrder(Guid orderId)
+        {
+            var httpResponse = await _client.DeleteAsync(_uri + $"/api/Reservation/ReservationCancel/{orderId}");
+
+            if (httpResponse == null || httpResponse.StatusCode == HttpStatusCode.BadRequest)
+                return BadRequest("Unable to get response from CatalogService");
+
+            return RedirectToAction("DeleteOrder", new { orderId });
+        }
+
+        [SwaggerResponse((int)HttpStatusCode.OK)]
+        [SwaggerResponse((int)HttpStatusCode.NotFound)]
+        [SwaggerResponse((int)HttpStatusCode.BadRequest)]
+        [HttpDelete("DeleteOrder/{orderId}")]
+        public ActionResult DeleteOrder(Guid orderId)
+        {
+            var order = _db.Orders.FirstOrDefault(c => c.Id == orderId);
+            if (order == null)
+                return NotFound("Order not found");
+
+            var products = _db.Products.Where(c => c.OrderId == orderId);
+            if (products != null)
+                _db.Products.RemoveRange(products);
+
+            _db.Orders.Remove(order);
+            _db.SaveChanges();
+
+            return Ok("Order was deleted");
+        }
     }
 }
