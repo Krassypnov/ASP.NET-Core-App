@@ -27,8 +27,8 @@ namespace OrderService.Controllers
 
         [SwaggerResponse((int)HttpStatusCode.OK)]
         [SwaggerResponse((int)HttpStatusCode.NotFound)]
-        [HttpGet("getProducts")]
-        public async Task<IList<ProductClass>?> getProducts()
+        [HttpGet("GetProducts")]
+        public async Task<IList<ProductClass>?> GetProducts()
         {
             var httpResponse = await _client.GetFromJsonAsync<IList<ProductClass>>(_uri + "/api/Product");
 
@@ -42,8 +42,8 @@ namespace OrderService.Controllers
 
         [SwaggerResponse((int)HttpStatusCode.OK)]
         [SwaggerResponse((int)HttpStatusCode.NotFound)]
-        [HttpGet("getProductById/{id}")]
-        public async Task<ProductClass?> getProductById(Guid id)
+        [HttpGet("GetProductById/{id}")]
+        public async Task<ProductClass?> GetProductById(Guid id)
         {
             var httpResponse = await _client.GetFromJsonAsync<ProductClass>(_uri + $"/api/Product/getProductById/{id}");
 
@@ -55,7 +55,7 @@ namespace OrderService.Controllers
 
         [SwaggerResponse((int)HttpStatusCode.OK)]
         [SwaggerResponse((int)HttpStatusCode.NotFound)]
-        [HttpGet("getProductByName/{name}")]
+        [HttpGet("GetProductByName/{name}")]
         public async Task<ProductClass?> GetProductByName(string name)
         {
             var httpResponse = await _client.GetFromJsonAsync<ProductClass>(_uri + $"/api/Product/getProductByName/{name}");
@@ -68,7 +68,7 @@ namespace OrderService.Controllers
 
         [SwaggerResponse((int)HttpStatusCode.OK)]
         [SwaggerResponse((int)HttpStatusCode.NotFound)]
-        [HttpGet("getProductsByCategory/{name}")]
+        [HttpGet("GetProductsByCategory/{name}")]
         public async Task<IList<ProductClass>?> GetProductsByCategory(string name)
         {
             var httpResponse = await _client.GetFromJsonAsync<IList<ProductClass>?>(_uri + $"/api/Product/getProductsByCategory/{name}");
@@ -81,7 +81,7 @@ namespace OrderService.Controllers
 
         [SwaggerResponse((int)HttpStatusCode.OK)]
         [SwaggerResponse((int)HttpStatusCode.NotFound)]
-        [HttpGet("getProductsByBrand/{name}")]
+        [HttpGet("GetProductsByBrand/{name}")]
         public async Task<IList<ProductClass>?> GetProductsByBrand(string name)
         {
             var httpResponse = await _client.GetFromJsonAsync<IList<ProductClass>?>(_uri + $"/api/Product/getProductsByBrand/{name}");
@@ -95,8 +95,8 @@ namespace OrderService.Controllers
 
         [SwaggerResponse((int)HttpStatusCode.OK)]
         [SwaggerResponse((int)HttpStatusCode.NotFound)]
-        [HttpGet("getProductsInOrder/{orderId}")]
-        public ActionResult getProductsInOrder(Guid orderId)
+        [HttpGet("GetProductsInOrder/{orderId}")]
+        public ActionResult GetProductsInOrder(Guid orderId)
         {
             var products = _db.Products.Where(x => x.OrderId == orderId);
 
@@ -108,12 +108,15 @@ namespace OrderService.Controllers
 
 
         [SwaggerResponse((int)HttpStatusCode.OK)]
-        [HttpPost("makeOrder")]
-        public ActionResult makeOrder()
+        [HttpPost("MakeOrder")]
+        public ActionResult MakeOrder()
         {
             Guid newOrderId = Guid.NewGuid();
 
-            _db.Orders.Add(new Order { Id = newOrderId, ClientName = "", ClientAddress = "", PhoneNumber = "", CreatedDate = DateTime.Now, IsConfirmedOrder = false, IsDelivery = false});
+            _db.Orders.Add(new Order { Id = newOrderId, ClientName = "",
+                                       ClientAddress = "", PhoneNumber = "", 
+                                       CreatedDate = DateTime.Now, IsConfirmedOrder = false, 
+                                       IsDelivery = false});
             _db.SaveChanges();
             return Json(newOrderId);
         }
@@ -121,8 +124,8 @@ namespace OrderService.Controllers
 
         [SwaggerResponse((int)HttpStatusCode.OK)]
         [SwaggerResponse((int)HttpStatusCode.BadRequest)]
-        [HttpPost("addProductToOrder/{orderId}, {productId}, {count}")]
-        public ActionResult addProductToOrder(Guid orderId, Guid productId, int count)
+        [HttpPost("AddProductToOrder/{orderId}, {productId}, {count}")]
+        public ActionResult AddProductToOrder(Guid orderId, Guid productId, int count)
         {
             var order = _db.Orders.FirstOrDefault(c => c.Id == orderId);
             
@@ -152,8 +155,8 @@ namespace OrderService.Controllers
         [SwaggerResponse((int)HttpStatusCode.OK)]
         [SwaggerResponse((int)HttpStatusCode.NotFound)]
         [SwaggerResponse((int)HttpStatusCode.BadRequest)]
-        [HttpPost("confirmOrder/{orderId},{clientName},{clientAddress},{phoneNumber},{isDelivery}")]
-        public async Task<ActionResult> confirmOrder(Guid orderId, string clientName, string clientAddress, string phoneNumber, bool isDelivery)
+        [HttpPost("ConfirmOrder/{orderId},{clientName},{clientAddress},{phoneNumber},{isDelivery}")]
+        public async Task<ActionResult> ConfirmOrder(Guid orderId, string clientName, string clientAddress, string phoneNumber, bool isDelivery)
         {
             if (clientName.Length == 0 || clientAddress.Length == 0 || phoneNumber.Length == 0)
                 return BadRequest("Invalid parameters");

@@ -27,8 +27,8 @@ namespace CatalogService.Controllers
         [SwaggerResponse((int)HttpStatusCode.OK)]
         [SwaggerResponse((int)HttpStatusCode.NotFound)]
         [SwaggerResponse((int)HttpStatusCode.BadRequest)]
-        [HttpPost("productReservation/{orderId}")]
-        public async Task<ActionResult> productReservation(Guid orderId)
+        [HttpPost("ProductReservation/{orderId}")]
+        public async Task<ActionResult> ProductReservation(Guid orderId)
         {
             var httpResponse = await _client.GetFromJsonAsync<IList<ReservedProduct>>(_uri + $"/api/Order/getProductsInOrder/{orderId}");
 
@@ -58,8 +58,8 @@ namespace CatalogService.Controllers
         [SwaggerResponse((int)HttpStatusCode.OK)]
         [SwaggerResponse((int)HttpStatusCode.NotFound)]
         [SwaggerResponse((int)HttpStatusCode.BadRequest)]
-        [HttpDelete("reservationCancel/{orderId}")]
-        public ActionResult reservationCancel(Guid orderId)
+        [HttpDelete("ReservationCancel/{orderId}")]
+        public ActionResult ReservationCancel(Guid orderId)
         {
             var products = _db.ReservedProducts.Where(c => c.OrderId == orderId);
             if (products == null)

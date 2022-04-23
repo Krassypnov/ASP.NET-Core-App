@@ -19,7 +19,7 @@ namespace CatalogService.Controllers
         [SwaggerResponse((int)HttpStatusCode.OK)]
         [SwaggerResponse((int)HttpStatusCode.NotFound)]
         [HttpGet]
-        public ActionResult getProducts()
+        public ActionResult GetProducts()
         {
             var obj = _db.Products;
             
@@ -30,8 +30,8 @@ namespace CatalogService.Controllers
 
         [SwaggerResponse((int)HttpStatusCode.OK)]
         [SwaggerResponse((int)HttpStatusCode.NotFound)]
-        [HttpGet("getProductById/{id}")]
-        public ActionResult getProductById(Guid id)
+        [HttpGet("GetProductById/{id}")]
+        public ActionResult GetProductById(Guid id)
         {
             var obj = _db.Products.FirstOrDefault(c => c.Id == id);
             if (obj == null)
@@ -42,8 +42,8 @@ namespace CatalogService.Controllers
 
         [SwaggerResponse((int)HttpStatusCode.OK)]
         [SwaggerResponse((int)HttpStatusCode.NotFound)]
-        [HttpGet("getProductByName/{name}")]
-        public ActionResult getProductById(string name)
+        [HttpGet("GetProductByName/{name}")]
+        public ActionResult GetProductById(string name)
         {
             var obj = _db.Products.FirstOrDefault(c => c.ProductName == name);
             if (obj == null)
@@ -54,8 +54,8 @@ namespace CatalogService.Controllers
 
         [SwaggerResponse((int)HttpStatusCode.OK)]
         [SwaggerResponse((int)HttpStatusCode.NotFound)]
-        [HttpGet("getProductsByCategory/{name}")]
-        public ActionResult getProductsByCategory(string name)
+        [HttpGet("GetProductsByCategory/{name}")]
+        public ActionResult GetProductsByCategory(string name)
         {
             var obj = _db.Products.Where(c => c.Category == name);
             if (obj == null)
@@ -66,8 +66,8 @@ namespace CatalogService.Controllers
 
         [SwaggerResponse((int)HttpStatusCode.OK)]
         [SwaggerResponse((int)HttpStatusCode.NotFound)]
-        [HttpGet("getProductsByBrand/{name}")]
-        public ActionResult getProductsByBrand(string name)
+        [HttpGet("GetProductsByBrand/{name}")]
+        public ActionResult GetProductsByBrand(string name)
         {
             var obj = _db.Products.Where(c => c.Brand == name);
             if (obj == null)
@@ -78,8 +78,8 @@ namespace CatalogService.Controllers
 
         [SwaggerResponse((int)HttpStatusCode.OK)]
         [SwaggerResponse((int)HttpStatusCode.BadRequest)]
-        [HttpPut("changeCount/{name},{difference}")]
-        public ActionResult changeCount(string name, int difference)
+        [HttpPut("ChangeCount/{name},{difference}")]
+        public ActionResult ChangeCount(string name, int difference)
         {
             var product = _db.Products.FirstOrDefault(c => c.ProductName == name);
             if (product == null)
@@ -97,7 +97,7 @@ namespace CatalogService.Controllers
         [SwaggerResponse((int)HttpStatusCode.OK)]
         [SwaggerResponse((int)HttpStatusCode.BadRequest)]
         [HttpPost("addProduct/{name},{category},{brand},{count},{price}")]
-        public ActionResult addProduct(string name, string category, string brand, int count = 0, decimal price = 0.0m)
+        public ActionResult AddProduct(string name, string category, string brand, int count = 0, decimal price = 0.0m)
         {
             var product = _db.Products.FirstOrDefault(c => c.ProductName == name);
             if (product != null)
@@ -122,8 +122,8 @@ namespace CatalogService.Controllers
 
         [SwaggerResponse((int)HttpStatusCode.OK)]
         [SwaggerResponse((int)HttpStatusCode.NotFound)]
-        [HttpDelete("deleteProductByName/{name}")]
-        public ActionResult deleteProductByName(string name)
+        [HttpDelete("DeleteProductByName/{name}")]
+        public ActionResult DeleteProductByName(string name)
         {
             var obj = _db.Products.FirstOrDefault(c => c.ProductName == name);
             if (obj == null)
@@ -136,8 +136,8 @@ namespace CatalogService.Controllers
 
         [SwaggerResponse((int)HttpStatusCode.OK)]
         [SwaggerResponse((int)HttpStatusCode.NotFound)]
-        [HttpDelete("deleteProductById/{id}")]
-        public ActionResult deleteProductByName(Guid id)
+        [HttpDelete("DeleteProductById/{id}")]
+        public ActionResult DeleteProductByName(Guid id)
         {
             var obj = _db.Products.FirstOrDefault(c => c.Id == id);
             if (obj == null)
