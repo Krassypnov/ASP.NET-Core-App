@@ -26,11 +26,33 @@ namespace CatalogService.Controllers
 
         [SwaggerResponse((int)HttpStatusCode.OK)]
         [SwaggerResponse((int)HttpStatusCode.NotFound)]
+        [HttpGet("GetReservedProducts")]
+        public ActionResult GetReservedProducts()
+        {
+            var products = _db.ReservedProducts;
+            if (products == null)
+                return NotFound("Products not found");
+            return Json(products);
+        }
+
+        [SwaggerResponse((int)HttpStatusCode.OK)]
+        [SwaggerResponse((int)HttpStatusCode.NotFound)]
+        [HttpGet("GetReservedProductsByOrderId/{orderId}")]
+        public ActionResult GetReservedProductsByOrderId(Guid orderId)
+        {
+            var products = _db.ReservedProducts.Where(c => c.OrderId == orderId);
+            if (products == null)
+                return NotFound("Products not found");
+            return Json(products);
+        }
+
+        [SwaggerResponse((int)HttpStatusCode.OK)]
+        [SwaggerResponse((int)HttpStatusCode.NotFound)]
         [SwaggerResponse((int)HttpStatusCode.BadRequest)]
         [HttpPost("ProductReservation/{orderId}")]
         public async Task<ActionResult> ProductReservation(Guid orderId)
         {
-            var httpResponse = await _client.GetFromJsonAsync<IList<ReservedProduct>>(_uri + $"/api/Order/getProductsInOrder/{orderId}");
+            var httpResponse = await _client.GetFromJsonAsync<IList<ReservedProduct>>(_uri + $"/api/Order/GetProductsInOrder/{orderId}");
 
             if (httpResponse == null)
                 return BadRequest("Order not found");
@@ -48,7 +70,6 @@ namespace CatalogService.Controllers
                 _db.ReservedProducts.Add(new ReservedProduct { OrderId = item.OrderId, ProductId = item.ProductId, Count = item.Count});
             }
 
-            Console.WriteLine("qweqweqweqw");
 
             _db.SaveChanges();
 
@@ -79,6 +100,23 @@ namespace CatalogService.Controllers
             _db.SaveChanges();
 
             return Ok("Order cancelled");
+        }
+
+        [SwaggerResponse((int)HttpStatusCode.OK)]
+        [SwaggerResponse((int)HttpStatusCode.NotFound)]
+        [SwaggerResponse((int)HttpStatusCode.BadRequest)]
+        [HttpDelete("CompleteOrder/{orderId}")]
+        public ActionResult CompleteOrder(Guid orderId)
+        {
+            var products = _db.ReservedProducts.Where(_ => _.OrderId == orderId);
+            if (products == null)
+                return NotFound($"Order with id:{orderId} not found");
+
+            _db.ReservedProducts.RemoveRange(products);
+            _db.SaveChanges();
+
+            return Ok("Order completed");
+
         }
     }
 }

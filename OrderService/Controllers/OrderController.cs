@@ -45,7 +45,7 @@ namespace OrderService.Controllers
         [HttpGet("GetProductById/{id}")]
         public async Task<ProductClass?> GetProductById(Guid id)
         {
-            var httpResponse = await _client.GetFromJsonAsync<ProductClass>(_uri + $"/api/Product/getProductById/{id}");
+            var httpResponse = await _client.GetFromJsonAsync<ProductClass>(_uri + $"/api/Product/GetProductById/{id}");
 
             if (httpResponse == null)
                 return null;
@@ -58,7 +58,7 @@ namespace OrderService.Controllers
         [HttpGet("GetProductByName/{name}")]
         public async Task<ProductClass?> GetProductByName(string name)
         {
-            var httpResponse = await _client.GetFromJsonAsync<ProductClass>(_uri + $"/api/Product/getProductByName/{name}");
+            var httpResponse = await _client.GetFromJsonAsync<ProductClass>(_uri + $"/api/Product/GetProductByName/{name}");
 
             if (httpResponse == null)
                 return null;
@@ -71,7 +71,7 @@ namespace OrderService.Controllers
         [HttpGet("GetProductsByCategory/{name}")]
         public async Task<IList<ProductClass>?> GetProductsByCategory(string name)
         {
-            var httpResponse = await _client.GetFromJsonAsync<IList<ProductClass>?>(_uri + $"/api/Product/getProductsByCategory/{name}");
+            var httpResponse = await _client.GetFromJsonAsync<IList<ProductClass>?>(_uri + $"/api/Product/GetProductsByCategory/{name}");
 
             if (httpResponse == null)
                 return null;
@@ -84,7 +84,7 @@ namespace OrderService.Controllers
         [HttpGet("GetProductsByBrand/{name}")]
         public async Task<IList<ProductClass>?> GetProductsByBrand(string name)
         {
-            var httpResponse = await _client.GetFromJsonAsync<IList<ProductClass>?>(_uri + $"/api/Product/getProductsByBrand/{name}");
+            var httpResponse = await _client.GetFromJsonAsync<IList<ProductClass>?>(_uri + $"/api/Product/GetProductsByBrand/{name}");
 
             if (httpResponse == null)
                 return null;
@@ -95,17 +95,42 @@ namespace OrderService.Controllers
 
         [SwaggerResponse((int)HttpStatusCode.OK)]
         [SwaggerResponse((int)HttpStatusCode.NotFound)]
+        [HttpGet("GetOrders")]
+        public ActionResult GetOrders()
+        {
+            var orders = _db.Orders;
+
+            if (orders == null)
+                return NotFound("Orders not found");
+
+            return Json(orders);
+        }
+
+        [SwaggerResponse((int)HttpStatusCode.OK)]
+        [SwaggerResponse((int)HttpStatusCode.NotFound)]
+        [HttpGet("GetOrderById/{orderId}")]
+        public ActionResult GetOrderById(Guid orderId)
+        {
+            var order = _db.Orders.FirstOrDefault(x => x.Id == orderId);
+
+            if (order == null)
+                return NotFound("Order not found");
+
+            return Json(order);
+        }
+
+        [SwaggerResponse((int)HttpStatusCode.OK)]
+        [SwaggerResponse((int)HttpStatusCode.NotFound)]
         [HttpGet("GetProductsInOrder/{orderId}")]
         public ActionResult GetProductsInOrder(Guid orderId)
         {
             var products = _db.Products.Where(x => x.OrderId == orderId);
 
             if (products == null)
-                return NotFound("Prdoucts not found");
+                return NotFound("Products not found");
 
             return Json(products);
         }
-
 
         [SwaggerResponse((int)HttpStatusCode.OK)]
         [HttpPost("MakeOrder")]
@@ -120,7 +145,6 @@ namespace OrderService.Controllers
             _db.SaveChanges();
             return Json(newOrderId);
         }
-        
 
         [SwaggerResponse((int)HttpStatusCode.OK)]
         [SwaggerResponse((int)HttpStatusCode.BadRequest)]
@@ -167,7 +191,24 @@ namespace OrderService.Controllers
             if (order == null)
                 return NotFound("Order not found");
 
-            order.ClientName = clientName; 
+            if (order.IsConfirmedOrder)
+                return BadRequest("Order already confirmed");
+            
+
+            if (order.IsDelivery)
+            {
+                // Make delivery
+            }
+            else
+            {
+                var httpResponse = await _client.PostAsync(_uri + $"/api/Reservation/ProductReservation/{orderId}", null);
+                if (httpResponse == null)
+                    return BadRequest("Unable to get response from CatalogService");
+                if (httpResponse.StatusCode == HttpStatusCode.BadRequest)
+                    return BadRequest("Invalid count");
+            }
+
+            order.ClientName = clientName;
             order.ClientAddress = clientAddress;
             order.PhoneNumber = phoneNumber;
             order.IsDelivery = isDelivery;
@@ -176,22 +217,22 @@ namespace OrderService.Controllers
             _db.Orders.Update(order);
             _db.SaveChanges();
 
-            if (order.IsDelivery)
-            {
-                // Make delivery
-            }
-            else
-            {
-                var httpResponse = await _client.GetAsync(_uri + $"/api/Reservation/productReservation/{orderId}");
-                if (httpResponse == null)
-                    return BadRequest("Unable to get response from CatalogService");
-                if (httpResponse.StatusCode == HttpStatusCode.BadRequest)
-                    return BadRequest("Invalid count");
-                return Ok(httpResponse);
-            }
-
-
             return Ok("Order successfully confirmed");
+        }
+
+        [SwaggerResponse((int)HttpStatusCode.OK)]
+        [SwaggerResponse((int)HttpStatusCode.BadRequest)]
+        [HttpDelete("DeleteProductFromOrder/{orderId}, {productId}")]
+        public ActionResult DeleteProductFromOrder(Guid orderId, Guid productId)
+        {
+            var product = _db.Products.FirstOrDefault(c => c.ProductId == productId && c.OrderId == orderId);
+            if (product == null)
+                return NotFound($"Product with id:{orderId} not found");
+
+            _db.Products.Remove(product);
+            _db.SaveChanges();
+
+            return Ok("Product was deleted");
         }
 
     }
