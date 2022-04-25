@@ -222,6 +222,33 @@ namespace OrderService.Controllers
 
         [SwaggerResponse((int)HttpStatusCode.OK)]
         [SwaggerResponse((int)HttpStatusCode.BadRequest)]
+        [HttpDelete("CompleteOrder/{orderId}")]
+        public async Task<IActionResult> CompleteOrder(Guid orderId)
+        {
+            var order = _db.Orders.FirstOrDefault(c => c.Id == orderId);
+            if (order == null)
+                return NotFound($"Order with id:{orderId} not found");
+
+            if (order.IsDelivery)
+            {
+                // Delivery cancel
+            }
+            else
+            {
+                var httpResponse = await _client.DeleteAsync(_uri + $"/api/Reservation/CompleteOrder/{orderId}");
+                if (httpResponse == null)
+                    return BadRequest("Unable get response from CatalogService");
+                if (httpResponse.StatusCode == HttpStatusCode.NotFound)
+                    return NotFound("Order not found");
+
+            }
+
+            return Ok("Order completed");
+        }
+
+
+        [SwaggerResponse((int)HttpStatusCode.OK)]
+        [SwaggerResponse((int)HttpStatusCode.BadRequest)]
         [HttpDelete("DeleteProductFromOrder/{orderId}, {productId}")]
         public ActionResult DeleteProductFromOrder(Guid orderId, Guid productId)
         {
