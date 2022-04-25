@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-
+using DeliveryService.Models;
 
 namespace DeliveryService
 {
@@ -10,6 +10,6 @@ namespace DeliveryService
 
         }
 
-        
+        public DbSet<DeliveryOrder> DeliveryOrders { get; set; }
     }
 }

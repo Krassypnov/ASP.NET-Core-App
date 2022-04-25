@@ -41,9 +41,22 @@ namespace CatalogService.Controllers
         public ActionResult GetReservedProductsByOrderId(Guid orderId)
         {
             var products = _db.ReservedProducts.Where(c => c.OrderId == orderId);
+
             if (products == null)
                 return NotFound("Products not found");
-            return Json(products);
+
+            List<Product> productList = new List<Product>();
+
+            foreach (var product in products)
+            {
+                var productInDB = _db.Products.FirstOrDefault(c => c.Id == product.ProductId);
+                if (productInDB == null)
+                    continue;
+                productInDB.Count = product.Count;
+                productList.Add(productInDB);
+            }
+
+            return Json(productList);
         }
 
         [SwaggerResponse((int)HttpStatusCode.OK)]

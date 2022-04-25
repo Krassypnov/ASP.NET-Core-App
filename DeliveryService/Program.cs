@@ -1,4 +1,3 @@
-using System.Net.Http;
 using Microsoft.EntityFrameworkCore;
 
 
@@ -6,7 +5,6 @@ namespace DeliveryService
 {
     public class Program 
     {
-        private static readonly HttpClient client = new HttpClient();
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
@@ -29,8 +27,13 @@ namespace DeliveryService
 
             app.UseHttpsRedirection();
             app.UseRouting();
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllerRoute(
+                        name: "default",
+                        pattern: "{controller=Delivery}/{action=getDeliveryOrders}/{id?}");
+            });
 
-            
 
 
             app.Run();

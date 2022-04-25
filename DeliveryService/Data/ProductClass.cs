@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace OrderService.Data
+namespace DeliveryService.Data
 {
     public class ProductClass
     {

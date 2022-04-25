@@ -14,6 +14,7 @@ namespace OrderService.Controllers
         private readonly AppDbContext _db;
         private readonly HttpClient _client;
         private readonly string _uri;
+        private readonly string _uriDelivery;
         public OrderController(AppDbContext db)
         {
             _db = db;
@@ -23,6 +24,7 @@ namespace OrderService.Controllers
             };
             _client = new HttpClient(handler);
             _uri = "https://localhost:7113";
+            _uriDelivery = "https://localhost:7101";
         }
 
         [SwaggerResponse((int)HttpStatusCode.OK)]
@@ -193,25 +195,26 @@ namespace OrderService.Controllers
 
             if (order.IsConfirmedOrder)
                 return BadRequest("Order already confirmed");
-            
+
+            order.IsDelivery = isDelivery;
 
             if (order.IsDelivery)
             {
-                // Make delivery
+                var httpResponseDelivery = _client.PostAsync(_uriDelivery + $"/api/Delivery/AddDeliveryOrder/{orderId}", null);
+                if (httpResponseDelivery == null)
+                    return BadRequest("Unable get response from DeliveryService");
             }
-            else
-            {
-                var httpResponse = await _client.PostAsync(_uri + $"/api/Reservation/ProductReservation/{orderId}", null);
-                if (httpResponse == null)
-                    return BadRequest("Unable to get response from CatalogService");
-                if (httpResponse.StatusCode == HttpStatusCode.BadRequest)
-                    return BadRequest("Invalid count");
-            }
+            
+
+            var httpResponse = await _client.PostAsync(_uri + $"/api/Reservation/ProductReservation/{orderId}", null);
+            if (httpResponse == null)
+                return BadRequest("Unable to get response from CatalogService");
+            if (httpResponse.StatusCode == HttpStatusCode.BadRequest)
+                return BadRequest("Invalid count");
 
             order.ClientName = clientName;
             order.ClientAddress = clientAddress;
             order.PhoneNumber = phoneNumber;
-            order.IsDelivery = isDelivery;
             order.IsConfirmedOrder = true;
 
             _db.Orders.Update(order);
@@ -231,7 +234,7 @@ namespace OrderService.Controllers
 
             if (order.IsDelivery)
             {
-                // Delivery cancel
+                return BadRequest("Order in DeliveryService. Only DeliveryService can complete the order");
             }
             else
             {
@@ -243,7 +246,9 @@ namespace OrderService.Controllers
 
             }
 
-            return Ok("Order completed");
+
+
+            return RedirectToAction("DeleteOrder", new { orderId });
         }
 
 
@@ -259,7 +264,7 @@ namespace OrderService.Controllers
             _db.Products.Remove(product);
             _db.SaveChanges();
 
-            return Ok("Product was deleted");
+            return RedirectToAction("DeleteOrder", new { orderId });
         }
 
 
@@ -269,10 +274,25 @@ namespace OrderService.Controllers
         [HttpDelete("CancelOrder/{orderId}")]
         public async Task<ActionResult> CancelOrder(Guid orderId)
         {
-            var httpResponse = await _client.DeleteAsync(_uri + $"/api/Reservation/ReservationCancel/{orderId}");
+            var order = _db.Orders.FirstOrDefault(c => c.Id == orderId);
+            if (order == null)
+                return NotFound("Order not found");
 
-            if (httpResponse == null || httpResponse.StatusCode == HttpStatusCode.BadRequest)
-                return BadRequest("Unable to get response from CatalogService");
+            if (order.IsDelivery)
+            {
+                var httpResponse = await _client.DeleteAsync(_uriDelivery + $"/api/Delivery/ReturnOrder/{orderId}");
+
+                if (httpResponse == null || httpResponse.StatusCode == HttpStatusCode.BadRequest)
+                    return BadRequest("Unable to get response from CatalogService");
+            }
+            else
+            {
+                var httpResponse = await _client.DeleteAsync(_uri + $"/api/Reservation/ReservationCancel/{orderId}");
+
+                if (httpResponse == null || httpResponse.StatusCode == HttpStatusCode.BadRequest)
+                    return BadRequest("Unable to get response from CatalogService");
+            }
+            
 
             return RedirectToAction("DeleteOrder", new { orderId });
         }
