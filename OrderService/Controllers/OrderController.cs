@@ -4,6 +4,8 @@ using OrderService.Models;
 using System.Net;
 using System.Security.Authentication;
 using OrderService.Data;
+using EasyNetQ;
+using Messages;
 
 namespace OrderService.Controllers
 {
@@ -12,12 +14,14 @@ namespace OrderService.Controllers
     public class OrderController : Controller
     {
         private readonly AppDbContext _db;
+        private readonly IPubSub _bus;
         private readonly HttpClient _client;
         private readonly string _uri;
         private readonly string _uriDelivery;
-        public OrderController(AppDbContext db)
+        public OrderController(AppDbContext db, IPubSub bus)
         {
             _db = db;
+            _bus = bus;
             var handler = new HttpClientHandler()
             {
                 SslProtocols = SslProtocols.Tls12 | SslProtocols.Tls11 | SslProtocols.Tls
@@ -178,6 +182,8 @@ namespace OrderService.Controllers
             return Ok("Product successfully added");
         }
 
+
+        // Работа с EasyNetQ в данном методе
         [SwaggerResponse((int)HttpStatusCode.OK)]
         [SwaggerResponse((int)HttpStatusCode.NotFound)]
         [SwaggerResponse((int)HttpStatusCode.BadRequest)]
@@ -196,6 +202,10 @@ namespace OrderService.Controllers
             if (order.IsConfirmedOrder)
                 return BadRequest("Order already confirmed");
 
+            var products = _db.Products.Where(c => c.OrderId == orderId);
+            if (products == null)
+                return BadRequest("Product list is empty");
+
             order.IsDelivery = isDelivery;
 
             if (order.IsDelivery)
@@ -204,13 +214,16 @@ namespace OrderService.Controllers
                 if (httpResponseDelivery == null)
                     return BadRequest("Unable get response from DeliveryService");
             }
-            
 
-            var httpResponse = await _client.PostAsync(_uri + $"/api/Reservation/ProductReservation/{orderId}", null);
+
+            var httpResponse = await _client.GetAsync(_uri + $"/api/Reservation/InitController");
             if (httpResponse == null)
                 return BadRequest("Unable to get response from CatalogService");
-            if (httpResponse.StatusCode == HttpStatusCode.BadRequest)
-                return BadRequest("Invalid count");
+           
+            // Отправка продуктов в CatalogService с помощью RabbitMQ
+            foreach (var product in products)
+                await _bus.PublishAsync(new ReservedProductMsg { OrderId = product.OrderId, ProductId = product.ProductId, Count = product.Count});
+
 
             order.ClientName = clientName;
             order.ClientAddress = clientAddress;

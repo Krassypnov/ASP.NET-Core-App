@@ -3,6 +3,9 @@ using CatalogService.Models;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Net;
 using System.Security.Authentication;
+using EasyNetQ;
+using Messages;
+using Microsoft.EntityFrameworkCore;
 
 namespace CatalogService.Controllers
 {
@@ -13,6 +16,7 @@ namespace CatalogService.Controllers
         private readonly AppDbContext _db;
         private readonly HttpClient _client;
         private readonly string _uri;
+
         public ReservationController(AppDbContext db)
         {
             _db = db;
@@ -23,6 +27,7 @@ namespace CatalogService.Controllers
             };
             _client = new HttpClient(handler);
         }
+
 
         [SwaggerResponse((int)HttpStatusCode.OK)]
         [SwaggerResponse((int)HttpStatusCode.NotFound)]
@@ -58,34 +63,37 @@ namespace CatalogService.Controllers
 
             return Json(productList);
         }
+        
 
-        [SwaggerResponse((int)HttpStatusCode.OK)]
-        [SwaggerResponse((int)HttpStatusCode.NotFound)]
-        [SwaggerResponse((int)HttpStatusCode.BadRequest)]
-        [HttpPost("ProductReservation/{orderId}")]
-        public async Task<ActionResult> ProductReservation(Guid orderId)
+        private async Task AddProductInReservation(ReservedProductMsg product)
         {
-            var httpResponse = await _client.GetFromJsonAsync<IList<ReservedProduct>>(_uri + $"/api/Order/GetProductsInOrder/{orderId}");
+            await _db.ReservedProducts.AddAsync(new ReservedProduct { OrderId = product.OrderId,
+                                                                      ProductId = product.ProductId,
+                                                                      Count = product.Count });
+            await _db.SaveChangesAsync();
+        }
 
-            if (httpResponse == null)
-                return BadRequest("Order not found");
+  
+        private async Task<ActionResult> ProductReservation(ReservedProductMsg product)
+        {
+            Console.WriteLine($"Log: {product.Count}");
+            var productInDataBase = await _db.Products.FindAsync(product.ProductId);
+            Console.WriteLine($"Log: {product.Count}");
+            if (productInDataBase == null)
+                return NotFound($"Product with id:{product.ProductId} not found");
+            if (productInDataBase.Count - product.Count < 0)
+                return BadRequest("Invalid count");
+            Console.WriteLine($"Log: {product.Count}");
+            productInDataBase.Count -= product.Count;
+            //Console.WriteLine(productInDataBase.Count);
+            _db.Products.Update(productInDataBase);
+            Console.WriteLine($"Log: {product.Count}");
+            await _db.ReservedProducts.AddAsync(new ReservedProduct { OrderId = product.OrderId, ProductId = product.ProductId, Count = product.Count });
 
-            foreach (var item in httpResponse)
-            {
-                var productInDataBase =  _db.Products.FirstOrDefault(c => c.Id == item.ProductId);
-                if (productInDataBase == null)
-                    return NotFound($"Product with id:{item.ProductId} not found");
-                if (productInDataBase.Count - item.Count < 0)
-                    return BadRequest("Invalid count");
-                productInDataBase.Count -= item.Count;
-                Console.WriteLine(productInDataBase.Count);
-                _db.Products.Update(productInDataBase);
-                _db.ReservedProducts.Add(new ReservedProduct { OrderId = item.OrderId, ProductId = item.ProductId, Count = item.Count});
-            }
+            Console.WriteLine($"Log: {product.Count}");
+            await _db.SaveChangesAsync();
 
-
-            _db.SaveChanges();
-
+            Console.WriteLine($"Log: {product.Count}");
             return Ok();
         }
 

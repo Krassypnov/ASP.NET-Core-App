@@ -1,0 +1,12 @@
+C:\Users\Admin\source\ASP.NET\Shop\Messages\bin\Debug\net6.0\Messages.deps.json
+C:\Users\Admin\source\ASP.NET\Shop\Messages\bin\Debug\net6.0\Messages.dll
+C:\Users\Admin\source\ASP.NET\Shop\Messages\bin\Debug\net6.0\Messages.pdb
+C:\Users\Admin\source\ASP.NET\Shop\Messages\obj\Debug\net6.0\Messages.csproj.AssemblyReference.cache
+C:\Users\Admin\source\ASP.NET\Shop\Messages\obj\Debug\net6.0\Messages.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Admin\source\ASP.NET\Shop\Messages\obj\Debug\net6.0\Messages.AssemblyInfoInputs.cache
+C:\Users\Admin\source\ASP.NET\Shop\Messages\obj\Debug\net6.0\Messages.AssemblyInfo.cs
+C:\Users\Admin\source\ASP.NET\Shop\Messages\obj\Debug\net6.0\Messages.csproj.CoreCompileInputs.cache
+C:\Users\Admin\source\ASP.NET\Shop\Messages\obj\Debug\net6.0\Messages.dll
+C:\Users\Admin\source\ASP.NET\Shop\Messages\obj\Debug\net6.0\refint\Messages.dll
+C:\Users\Admin\source\ASP.NET\Shop\Messages\obj\Debug\net6.0\Messages.pdb
+C:\Users\Admin\source\ASP.NET\Shop\Messages\obj\Debug\net6.0\ref\Messages.dll

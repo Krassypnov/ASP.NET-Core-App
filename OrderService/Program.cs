@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using EasyNetQ;
 
 namespace OrderService
 {
@@ -12,6 +13,7 @@ namespace OrderService
             builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(
                 builder.Configuration.GetConnectionString("OrderConnection")
                 ));
+            builder.Services.AddSingleton<IPubSub>(RabbitHutch.CreateBus("host=localhost").PubSub);
 
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
