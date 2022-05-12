@@ -65,38 +65,6 @@ namespace CatalogService.Controllers
         }
         
 
-        private async Task AddProductInReservation(ReservedProductMsg product)
-        {
-            await _db.ReservedProducts.AddAsync(new ReservedProduct { OrderId = product.OrderId,
-                                                                      ProductId = product.ProductId,
-                                                                      Count = product.Count });
-            await _db.SaveChangesAsync();
-        }
-
-  
-        private async Task<ActionResult> ProductReservation(ReservedProductMsg product)
-        {
-            Console.WriteLine($"Log: {product.Count}");
-            var productInDataBase = await _db.Products.FindAsync(product.ProductId);
-            Console.WriteLine($"Log: {product.Count}");
-            if (productInDataBase == null)
-                return NotFound($"Product with id:{product.ProductId} not found");
-            if (productInDataBase.Count - product.Count < 0)
-                return BadRequest("Invalid count");
-            Console.WriteLine($"Log: {product.Count}");
-            productInDataBase.Count -= product.Count;
-            //Console.WriteLine(productInDataBase.Count);
-            _db.Products.Update(productInDataBase);
-            Console.WriteLine($"Log: {product.Count}");
-            await _db.ReservedProducts.AddAsync(new ReservedProduct { OrderId = product.OrderId, ProductId = product.ProductId, Count = product.Count });
-
-            Console.WriteLine($"Log: {product.Count}");
-            await _db.SaveChangesAsync();
-
-            Console.WriteLine($"Log: {product.Count}");
-            return Ok();
-        }
-
         [SwaggerResponse((int)HttpStatusCode.OK)]
         [SwaggerResponse((int)HttpStatusCode.NotFound)]
         [SwaggerResponse((int)HttpStatusCode.BadRequest)]

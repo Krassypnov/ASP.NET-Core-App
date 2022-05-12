@@ -210,9 +210,7 @@ namespace OrderService.Controllers
 
             if (order.IsDelivery)
             {
-                var httpResponseDelivery = _client.PostAsync(_uriDelivery + $"/api/Delivery/AddDeliveryOrder/{orderId}", null);
-                if (httpResponseDelivery == null)
-                    return BadRequest("Unable get response from DeliveryService");
+                await _bus.PublishAsync(new DeliveryOrderMsg { OrderId = orderId });
             }
 
 
@@ -258,8 +256,6 @@ namespace OrderService.Controllers
                     return NotFound("Order not found");
 
             }
-
-
 
             return RedirectToAction("DeleteOrder", new { orderId });
         }

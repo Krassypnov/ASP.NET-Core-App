@@ -23,9 +23,6 @@ namespace CatalogService
                     }
                 ));
 
-            builder.Services.AddScoped<MessageConsumer>();
-
-
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
@@ -52,7 +49,7 @@ namespace CatalogService
                 {
                     if (type.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == interfaceType && !i.GetGenericArguments()[0].IsGenericParameter))
                     {
-                        builder.Services.AddScoped(type);
+                        builder.Services.AddTransient(type);
                     }
                 }
             }
