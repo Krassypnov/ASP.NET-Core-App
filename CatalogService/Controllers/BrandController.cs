@@ -47,7 +47,7 @@ namespace CatalogService.Controllers
             _db.Brands.Add(new Brand { BrandName = name });
             _db.SaveChanges();
 
-            return StatusCode((int)HttpStatusCode.OK);
+            return Ok();
         }
 
 

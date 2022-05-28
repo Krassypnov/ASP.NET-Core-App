@@ -43,7 +43,7 @@ namespace CatalogService.Controllers
         [SwaggerResponse((int)HttpStatusCode.OK)]
         [SwaggerResponse((int)HttpStatusCode.NotFound)]
         [HttpGet("GetProductByName/{name}")]
-        public ActionResult GetProductById(string name)
+        public ActionResult GetProductByName(string name)
         {
             var obj = _db.Products.FirstOrDefault(c => c.ProductName == name);
             if (obj == null)
@@ -57,8 +57,8 @@ namespace CatalogService.Controllers
         [HttpGet("GetProductsByCategory/{name}")]
         public ActionResult GetProductsByCategory(string name)
         {
-            var obj = _db.Products.Where(c => c.Category == name);
-            if (obj == null)
+            var obj = _db.Products.Where(c => c.Category == name).ToList();
+            if (obj.Count == 0)
                 return NotFound();
 
             return Json(obj);
@@ -69,8 +69,8 @@ namespace CatalogService.Controllers
         [HttpGet("GetProductsByBrand/{name}")]
         public ActionResult GetProductsByBrand(string name)
         {
-            var obj = _db.Products.Where(c => c.Brand == name);
-            if (obj == null)
+            var obj = _db.Products.Where(c => c.Brand == name).ToList();
+            if (obj.Count == 0)
                 return NotFound();
 
             return Json(obj);

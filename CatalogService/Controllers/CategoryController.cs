@@ -65,7 +65,7 @@ namespace CatalogService.Controllers
             _db.Categories.Add(new Category { CategoryName = name });
             _db.SaveChanges();
 
-            return StatusCode((int)HttpStatusCode.OK);
+            return Ok();
         }
 
         [SwaggerResponse((int)HttpStatusCode.OK)]
